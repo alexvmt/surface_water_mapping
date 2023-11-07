@@ -5,4 +5,4 @@
 
 ### Example (Moremi Game Reserve, Botsuana, 2016-04-22)
 
-![moremi game reserve 2016-04-22](moremi_game_reserve_2016_04_22.png 'moremi game reserve 2016-04-22')
+![moremi game reserve 2016-04-22](moremi_game_reserve_2016_04_22.gif 'moremi game reserve 2016-04-22')
