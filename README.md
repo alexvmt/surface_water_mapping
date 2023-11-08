@@ -1,6 +1,6 @@
-# Surface water mapping using Sentinel-1
+# Surface water mapping using Sentinel-1 and Google Earth Engine
 
-## Workflow
+## Workflow in Google Earth Engine
 
 1. Check data availability for date and region of interest using `check_data_availability.js`
 2. Map surface water for date and region of interest using `map_surface_water.js`
