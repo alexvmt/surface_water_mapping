@@ -51,16 +51,23 @@ Map.addLayer(S1_classified, {min: 0, max: 1, palette: ['#FFFFFF','#0000FF']}, 'W
 var date_label = ui.Label(doi);
 Map.add(date_label);
 
-// export classification
-var file_name = 'surface_water_mapping_' + doi.replace('-', '_').replace('-', '_');
+// export classification as vectors/polygons
+var S1_classified_vectors = S1_classified.reduceToVectors({
+  reducer: ee.Reducer.countEvery(),
+  geometry: roi,
+  scale: 10,
+  geometryType: 'polygon',
+  labelProperty: 'water',
+  crs: 'EPSG:4326',
+  maxPixels: 1e13,
+});
 
-Export.image.toDrive({
-	image: S1_classified,
-	description: file_name,
-	folder: 'surface_water_mapping',
-	region: roi,
-	scale: 10,
-	maxPixels: 1e13,
-	fileFormat: 'GeoTIFF',
-	crs: 'EPSG:4326'
+var folder_name = 'surface_water_mapping';
+var file_name = folder_name + '_' + doi.replace('-', '_').replace('-', '_');
+
+Export.table.toDrive({
+  collection: S1_classified_vectors,
+  description: file_name,
+  folder: folder_name,
+  fileFormat: 'SHP'
 });
