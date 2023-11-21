@@ -1,23 +1,28 @@
-// map surface water at date of interest for region of interest
+// map surface water for date range of interest and region of interest
 
-// define date of interest
-var doi = '2016-04-22';
+// define date range of interest
+var start_date = '2016-11-01';
+var end_date = '2017-04-30';
 
-// define region of interst (Moremi Game Reserve)
-var roi = ee.Geometry.Point(23.201, -19.272).buffer(30000);
-
-Map.addLayer(roi, {}, 'ROI');
-Map.centerObject(roi, 10);
+// define region of interst (Makgadikgadi Pan)
+var long_min = 24.51122;
+var long_max = 25.41764;
+var lat_min = -20.7972;
+var lat_max = -20.29362;
+var roi = ee.Geometry.Polygon(
+        [[[long_min, lat_max],
+          [long_min, lat_min],
+          [long_max, lat_min],
+          [long_max, lat_max]]], null, false);
 
 // load Sentinel-1 SAR collection
 var S1 = ee.ImageCollection('COPERNICUS/S1_GRD')
   .filterBounds(roi)
-  .filterDate(ee.Date(doi), ee.Date(doi).advance(1, 'day'))
+  .filterDate(ee.Date(start_date), ee.Date(end_date))
+  .filter(ee.Filter.eq('instrumentMode', 'IW'))
+  .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
+  .filter(ee.Filter.eq('resolution_meters', 10))
   .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'));
-
-print(S1);
-
-Map.addLayer(S1.first().clip(roi), {bands: 'VV', min: -18, max: 0}, 'SAR image');
 
 // filter speckle noise and map it across collection
 var filterSpeckles = function(img) {
@@ -27,8 +32,6 @@ var filterSpeckles = function(img) {
 };
 
 var S1_filtered = S1.map(filterSpeckles);
-
-Map.addLayer(S1_filtered.first().clip(roi), {bands: 'VV_filtered', min: -18, max: 0}, 'Filtered SAR image');
 
 // classify water pixels using a set threshhold 
 var classifyWater = function(image) {
@@ -41,33 +44,18 @@ var classifyWater = function(image) {
 // apply classification
 var S1_classified = S1_filtered
   .map(classifyWater)
-  .select('water')
-  .first()
-  .clip(roi);
-    
-Map.addLayer(S1_classified, {min: 0, max: 1, palette: ['#FFFFFF','#0000FF']}, 'Water');
+  .select('water');
 
-// create date label on map
-var date_label = ui.Label(doi);
-Map.add(date_label);
+// create list of images to check out available dates
+var list_of_images = S1.toList(S1.size());
+var list_of_filtered_images = S1_filtered.toList(S1_filtered.size());
+var list_of_classified_images = S1_classified.toList(S1_classified.size());
+print('Images:', list_of_images);
+var image_index = 0;
 
-// export classification as vectors/polygons
-var S1_classified_vectors = S1_classified.reduceToVectors({
-  reducer: ee.Reducer.countEvery(),
-  geometry: roi,
-  scale: 10,
-  geometryType: 'polygon',
-  labelProperty: 'water',
-  crs: 'EPSG:4326',
-  maxPixels: 1e13,
-});
-
-var folder_name = 'surface_water_mapping';
-var file_name = folder_name + '_' + doi.replace('-', '_').replace('-', '_');
-
-Export.table.toDrive({
-  collection: S1_classified_vectors,
-  description: file_name,
-  folder: folder_name,
-  fileFormat: 'SHP'
-});
+// add layers to map
+Map.addLayer(ee.Image(list_of_images.get(image_index)).clip(roi), {bands: 'VV', min: -18, max: 0}, 'SAR image');
+Map.addLayer(ee.Image(list_of_filtered_images.get(image_index)).clip(roi), {bands: 'VV_filtered', min: -18, max: 0}, 'Filtered SAR image');
+Map.addLayer(ee.Image(list_of_classified_images.get(image_index)).clip(roi), {min: 0, max: 1, palette: ['#FFFFFF', '#0000FF']}, 'Water');
+Map.addLayer(roi, {}, 'ROI');
+Map.centerObject(roi, 10);
