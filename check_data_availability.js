@@ -8,7 +8,7 @@ var end_date = '2017-04-30';
 var long_min = 24.51122;
 var long_max = 25.41764;
 var lat_min = -20.7972;
-var lat_max = -20.29362;
+var lat_max = -20.40985;
 var roi = ee.Geometry.Polygon(
         [[[long_min, lat_max],
           [long_min, lat_min],
@@ -17,8 +17,8 @@ var roi = ee.Geometry.Polygon(
 
 // load Sentinel-1 SAR collection
 var S1 = ee.ImageCollection('COPERNICUS/S1_GRD')
-  .filterBounds(roi)
   .filterDate(ee.Date(start_date), ee.Date(end_date))
+  .filterBounds(roi)
   .filter(ee.Filter.eq('instrumentMode', 'IW'))
   .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
   .filter(ee.Filter.eq('resolution_meters', 10))

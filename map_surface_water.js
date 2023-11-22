@@ -8,7 +8,7 @@ var end_date = '2017-04-30';
 var long_min = 24.51122;
 var long_max = 25.41764;
 var lat_min = -20.7972;
-var lat_max = -20.29362;
+var lat_max = -20.40985;
 var roi = ee.Geometry.Polygon(
         [[[long_min, lat_max],
           [long_min, lat_min],
@@ -17,18 +17,18 @@ var roi = ee.Geometry.Polygon(
 
 // load Sentinel-1 SAR collection
 var S1 = ee.ImageCollection('COPERNICUS/S1_GRD')
-  .filterBounds(roi)
   .filterDate(ee.Date(start_date), ee.Date(end_date))
+  .filterBounds(roi)
   .filter(ee.Filter.eq('instrumentMode', 'IW'))
   .filter(ee.Filter.eq('orbitProperties_pass', 'ASCENDING'))
   .filter(ee.Filter.eq('resolution_meters', 10))
   .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'));
 
 // filter speckle noise and map it across collection
-var filterSpeckles = function(img) {
-  var vv = img.select('VV') // select the VV polarization band
+var filterSpeckles = function(image) {
+  var vv = image.select('VV') // select the VV polarization band
   var vv_smoothed = vv.focal_median(100, 'circle', 'meters').rename('VV_filtered') // apply a focal median filter
-  return img.addBands(vv_smoothed) // add filtered VV band to original image
+  return image.addBands(vv_smoothed) // add filtered VV band to original image
 };
 
 var S1_filtered = S1.map(filterSpeckles);
@@ -42,9 +42,7 @@ var classifyWater = function(image) {
 };
 
 // apply classification
-var S1_classified = S1_filtered
-  .map(classifyWater)
-  .select('water');
+var S1_classified = S1_filtered.map(classifyWater);
 
 // create list of images to check out available dates
 var list_of_images = S1.toList(S1.size());
@@ -56,6 +54,6 @@ var image_index = 0;
 // add layers to map
 Map.addLayer(ee.Image(list_of_images.get(image_index)).clip(roi), {bands: 'VV', min: -18, max: 0}, 'SAR image');
 Map.addLayer(ee.Image(list_of_filtered_images.get(image_index)).clip(roi), {bands: 'VV_filtered', min: -18, max: 0}, 'Filtered SAR image');
-Map.addLayer(ee.Image(list_of_classified_images.get(image_index)).clip(roi), {min: 0, max: 1, palette: ['#FFFFFF', '#0000FF']}, 'Water');
+Map.addLayer(ee.Image(list_of_classified_images.get(image_index)).clip(roi), {bands: 'water', min: 0, max: 1, palette: ['#FFFFFF', '#0000FF']}, 'Water');
 Map.addLayer(roi, {}, 'ROI');
 Map.centerObject(roi, 10);
