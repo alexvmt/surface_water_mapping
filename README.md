@@ -2,14 +2,16 @@
 
 ## Workflow using the Google Earth Engine Code Editor
 
-1. Check data availability for date and region of interest using `check_data_availability.js`
-2. Map surface water for date and region of interest using `map_surface_water.js`
+1. Check data availability for date range and region of interest using `check_data_availability.js`
+2. Get water classification threshold (Otsu's method) using `get_water_classification_threshold.js` 
+3. Map surface water (using previously found threshold) using `map_surface_water.js`
 
 ## Workflow using the Google Earth Engine Python API
 
 1. Use `surface_water_mapping.ipynb` in Google Colab
-2. Define date range of interest and region of interest
-2. Explore water classification and export polygons in shapefile format
+2. Define date range and region of interest
+3. Use water classification threshold from above
+4. Explore water classification and export polygons in shapefile format
 
 ## Notes
 
