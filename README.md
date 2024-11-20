@@ -8,7 +8,9 @@
 
 ## Workflow using the Google Earth Engine Python API
 
-1. Use `surface_water_mapping.ipynb` in Google Colab
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alexvmt/surface_water_mapping/blob/main/surface_water_mapping.ipynb)
+
+1. Open `surface_water_mapping.ipynb` in Google Colab
 2. Define date range and region of interest
 3. Use water classification threshold from above
 4. Explore water classification and export polygons in shapefile format
