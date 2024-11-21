@@ -11,9 +11,11 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alexvmt/surface_water_mapping/blob/main/surface_water_mapping.ipynb)
 
 1. Open `surface_water_mapping.ipynb` in Google Colab
-2. Define date range and region of interest
+2. Define date range and region of interest (set other parameters, too)
 3. Use water classification threshold from above
-4. Explore water classification and export polygons in shapefile format
+4. Explore water classification
+5. Export polygons in shapefile format to Google Drive
+6. Once export is finished, combine shapefiles into one final shapefile (also repair invalid geometries)
 
 ## Notes
 
